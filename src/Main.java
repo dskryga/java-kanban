@@ -10,33 +10,51 @@ public class Main {
         System.out.println("Поехали!");
         TaskManager taskManager = new TaskManager();
 
-        taskManager.addTask(new Task("Сходить в магазин", "купить продукты для ужина"));
-        taskManager.addTask(new Task("Приготовить ужин", "использовать купленные продукты"));
-        taskManager.addEpic(new Epic("Убраться", "Убраться в спальне"));
-        taskManager.addSubTask(new SubTask("Пропылесосить", " пропылесосить ковер", 3));
-        taskManager.addSubTask(new SubTask("Помыть полы", " протереть ламинат", 3));
-        taskManager.addEpic(new Epic("Найти фильм на вечер", " поискать триллер или детектив на вечер"));
-        taskManager.addSubTask(new SubTask("Зайти на кинопоиск", "посмотреть новинки", 6));
+        Task taskWashCar = new Task("Помыть машину", "Съездить на автомойку", Status.NEW);
+        taskManager.addTask(taskWashCar);
+        Task taskFuelCar = new Task("Заправить машину", "доехать до заправки, заправиться",
+                Status.IN_PROGRESS);
+        taskManager.addTask(taskFuelCar);
+        Epic epicMakeSupper = new Epic("Приготовить ужин", "Приготовить из купленных продуктов");
+        taskManager.addEpic(epicMakeSupper);
+        SubTask subtaskShopping = new SubTask("Сходить в магазин", "Купить продуктов для ужина",
+                Status.NEW, epicMakeSupper.getId());
+        taskManager.addSubTask(subtaskShopping);
+        Epic epicRepairCar = new Epic("Починить машину", "Починить в автосервисе");
+        taskManager.addEpic(epicRepairCar);
+        SubTask subtaskFindCarService = new SubTask("Найти сервис", "Найти на картах СТО поблизости",
+                Status.NEW, epicRepairCar.getId());
+        taskManager.addSubTask(subtaskFindCarService);
+        SubTask subtaskCallToService = new SubTask("Позвонить в сервис", "Договориться о ремонте",
+                Status.NEW, epicRepairCar.getId());
+        taskManager.addSubTask(subtaskCallToService);
 
         showTestLists(taskManager);
 
-        taskManager.updateTask(1, new Task("Заказать продукты",
-                "воспользоваться промокодом для Яндекс Еды"), Status.IN_PROGRESS);
-        taskManager.updateSubTask(4, new SubTask("Запустить робот-пылесос",
-                "не забыть зарядить его", 3), Status.DONE);
-        taskManager.updateEpic(6, new Epic("Найти сериал на ближайшие вечера", "поискать ситком"));
+        taskFuelCar.setStatus(Status.IN_PROGRESS);
+        taskManager.updateTask(taskFuelCar);
+        subtaskShopping.setStatus(Status.DONE);
+        taskManager.updateSubTask(subtaskShopping);
+        subtaskFindCarService.setStatus(Status.DONE);
+        taskManager.updateSubTask(subtaskFindCarService);
 
         System.out.println();
-        System.out.println("Выполнили обновление:");
+        System.out.println("Обновили статусы");
         showTestLists(taskManager);
 
-        taskManager.removeTaskById(1);
-        taskManager.removeEpicById(6);
-        taskManager.removeSubTaskById(5);
 
         System.out.println();
-        System.out.println("Выполнили удаление:");
+        System.out.println("Удалили задачу и эпик");
+        taskManager.removeTaskById(taskWashCar.getId());
+        taskManager.removeEpicById(epicMakeSupper.getId());
         showTestLists(taskManager);
+
+        taskManager.clearSubTaskList();
+        System.out.println();
+        System.out.println("Удалили лист сабтасков");
+        showTestLists(taskManager);
+
+
     }
 
     static void showTestLists(TaskManager taskManager) {
@@ -48,12 +66,16 @@ public class Main {
         System.out.println(taskManager.showSubTaskListByEpicId(3));
         System.out.println();
 
-        System.out.println("Список подзадач в эпике с id=6: ");
-        System.out.println(taskManager.showSubTaskListByEpicId(6));
+        System.out.println("Список подзадач в эпике с id=5: ");
+        System.out.println(taskManager.showSubTaskListByEpicId(5));
         System.out.println();
 
         System.out.println("Список обычных задач: ");
         System.out.println(taskManager.showTaskList());
+        System.out.println();
+
+        System.out.println("Список сабтасков");
+        System.out.println(taskManager.showSubTaskList());
 
     }
 }
