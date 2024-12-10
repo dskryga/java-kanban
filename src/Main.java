@@ -54,7 +54,6 @@ public class Main {
         System.out.println("Удалили лист сабтасков");
         showTestLists(taskManager);
 
-
     }
 
     static void showTestLists(TaskManager taskManager) {
