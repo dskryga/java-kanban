@@ -1,3 +1,5 @@
+import manager.InMemoryTaskManager;
+import manager.Managers;
 import manager.TaskManager;
 import tasks.Epic;
 import tasks.Status;
@@ -8,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
 
         Task taskWashCar = new Task("Помыть машину", "Съездить на автомойку", Status.NEW);
         taskManager.addTask(taskWashCar);
@@ -43,16 +45,35 @@ public class Main {
         showTestLists(taskManager);
 
 
-        System.out.println();
+        /*System.out.println();
         System.out.println("Удалили задачу и эпик");
         taskManager.removeTaskById(taskWashCar.getId());
         taskManager.removeEpicById(epicMakeSupper.getId());
         showTestLists(taskManager);
 
+
         taskManager.clearSubTaskList();
         System.out.println();
         System.out.println("Удалили лист сабтасков");
-        showTestLists(taskManager);
+        showTestLists(taskManager);*/
+
+        System.out.println("Вызываем задачи");
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println(taskManager.getTaskById(2));
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println(taskManager.getTaskById(1));
+        taskWashCar.setStatus(Status.DONE);
+        taskManager.updateTask(taskWashCar);
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println();
+        System.out.println("Смотрим историю");
+        System.out.println(taskManager.getHistory());
 
     }
 
