@@ -4,12 +4,11 @@ import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface HistoryManager {
-    public void addToHistory(Task task);
-    public void addToHistory(SubTask subTask);
-    public void addToHistory(Epic epic);
-    public ArrayList<Task> getHistory();
+    void addToHistory(Task task);
+
+    List<Task> getHistory();
 
 }

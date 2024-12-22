@@ -9,6 +9,7 @@ import tasks.SubTask;
 import tasks.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,7 +84,7 @@ class InMemoryTaskManagerTest {
         tm.addTask(task2);
         tm.addTask(task3);
 
-        ArrayList<Task> taskList = tm.showTaskList();
+        List<Task> taskList = tm.showTaskList();
         Assertions.assertEquals(task1, taskList.get(0));
         Assertions.assertEquals(task2, taskList.get(1));
         Assertions.assertEquals(task3, taskList.get(2));
@@ -100,7 +101,7 @@ class InMemoryTaskManagerTest {
         tm.addSubTask(subTask2);
         tm.addSubTask(subTask3);
 
-        ArrayList<SubTask> subtaskList = tm.showSubTaskList();
+        List<SubTask> subtaskList = tm.showSubTaskList();
         Assertions.assertEquals(subTask1, subtaskList.get(0));
         Assertions.assertEquals(subTask2, subtaskList.get(1));
         Assertions.assertEquals(subTask3, subtaskList.get(2));
@@ -115,7 +116,7 @@ class InMemoryTaskManagerTest {
         tm.addEpic(epic2);
         tm.addEpic(epic3);
 
-        ArrayList<Epic> epicList = tm.showEpicList();
+        List<Epic> epicList = tm.showEpicList();
 
         Assertions.assertEquals(epic1, epicList.get(0));
         Assertions.assertEquals(epic2, epicList.get(1));
@@ -133,7 +134,7 @@ class InMemoryTaskManagerTest {
         tm.addSubTask(subTask2);
         tm.addSubTask(subTask3);
 
-        ArrayList<SubTask> subtaskList = tm.showSubTaskListByEpicId(epic.getId());
+        List<SubTask> subtaskList = tm.showSubTaskListByEpicId(epic.getId());
 
         Assertions.assertEquals(subTask1, subtaskList.get(0));
         Assertions.assertEquals(subTask2, subtaskList.get(1));
@@ -349,7 +350,7 @@ class InMemoryTaskManagerTest {
         tm.getEpicById(epic.getId());
         tm.getSubTaskById(subTask.getId());
 
-        ArrayList<Task> list = tm.getHistory();
+        List<Task> list = tm.getHistory();
         Task taskInHistory = list.get(0);
         Epic epicInHistory = (Epic) list.get(1);
         SubTask subtaskInHistory = (SubTask) list.get(2);
@@ -392,6 +393,8 @@ class InMemoryTaskManagerTest {
 
         Assertions.assertEquals(subTask1,subTask2);
     }
+
+
 
 
 }
