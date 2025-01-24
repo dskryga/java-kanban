@@ -9,19 +9,21 @@ import tasks.Task;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Поехали!");
+
+        /*
+        Опциональный пользовательский сценарий
+         */
+
         TaskManager taskManager = Managers.getDefault();
+
+        // Создайте две задачи, эпик с тремя подзадачами и эпик без подзадач.
 
         Task taskWashCar = new Task("Помыть машину", "Съездить на автомойку", Status.NEW);
         taskManager.addTask(taskWashCar);
         Task taskFuelCar = new Task("Заправить машину", "доехать до заправки, заправиться",
                 Status.IN_PROGRESS);
         taskManager.addTask(taskFuelCar);
-        Epic epicMakeSupper = new Epic("Приготовить ужин", "Приготовить из купленных продуктов");
-        taskManager.addEpic(epicMakeSupper);
-        SubTask subtaskShopping = new SubTask("Сходить в магазин", "Купить продуктов для ужина",
-                Status.NEW, epicMakeSupper.getId());
-        taskManager.addSubTask(subtaskShopping);
+
         Epic epicRepairCar = new Epic("Починить машину", "Починить в автосервисе");
         taskManager.addEpic(epicRepairCar);
         SubTask subtaskFindCarService = new SubTask("Найти сервис", "Найти на картах СТО поблизости",
@@ -30,72 +32,35 @@ public class Main {
         SubTask subtaskCallToService = new SubTask("Позвонить в сервис", "Договориться о ремонте",
                 Status.NEW, epicRepairCar.getId());
         taskManager.addSubTask(subtaskCallToService);
+        SubTask subTaskGetToService = new SubTask("Добраться до сервиса", "Доехать на эвакуаторе до СТО",
+                Status.NEW, epicRepairCar.getId());
+        taskManager.addSubTask(subTaskGetToService);
 
-        showTestLists(taskManager);
+        //Запросите созданные задачи несколько раз в разном порядке.
 
-        taskFuelCar.setStatus(Status.IN_PROGRESS);
-        taskManager.updateTask(taskFuelCar);
-        subtaskShopping.setStatus(Status.DONE);
-        taskManager.updateSubTask(subtaskShopping);
-        subtaskFindCarService.setStatus(Status.DONE);
-        taskManager.updateSubTask(subtaskFindCarService);
-
-        System.out.println();
-        System.out.println("Обновили статусы");
-        showTestLists(taskManager);
-
-
-        /*System.out.println();
-        System.out.println("Удалили задачу и эпик");
-        taskManager.removeTaskById(taskWashCar.getId());
-        taskManager.removeEpicById(epicMakeSupper.getId());
-        showTestLists(taskManager);
-
-
-        taskManager.clearSubTaskList();
-        System.out.println();
-        System.out.println("Удалили лист сабтасков");
-        showTestLists(taskManager);*/
-
-        System.out.println("Вызываем задачи");
-        System.out.println(taskManager.getTaskById(1));
+        System.out.println("Запрашиваем задачи и смотрим историю");
         System.out.println(taskManager.getTaskById(2));
         System.out.println(taskManager.getTaskById(1));
+        System.out.println(taskManager.getSubTaskById(5));
+        System.out.println(taskManager.getEpicById(3));
+        System.out.println(taskManager.getSubTaskById(6));
+        System.out.println(taskManager.getSubTaskById(4));
         System.out.println(taskManager.getTaskById(1));
-        System.out.println(taskManager.getTaskById(1));
-        System.out.println(taskManager.getTaskById(1));
-        System.out.println(taskManager.getTaskById(1));
-        System.out.println(taskManager.getTaskById(1));
-        System.out.println(taskManager.getTaskById(1));
-        System.out.println(taskManager.getTaskById(1));
-        taskWashCar.setStatus(Status.DONE);
-        taskManager.updateTask(taskWashCar);
-        System.out.println(taskManager.getTaskById(1));
-        System.out.println();
-        System.out.println("Смотрим историю");
+
+        //Выведите историю, убедитесь, что в ней нет повторов
+
         System.out.println(taskManager.getHistory());
 
-    }
-
-    static void showTestLists(TaskManager taskManager) {
-        System.out.println("Список всех эпиков: ");
-        System.out.println(taskManager.showEpicList());
+        //Удалите задачу, которая есть в истории, и проверьте, что при печати она не будет выводиться.
         System.out.println();
+        System.out.println("Смотрим историю после удаления задачи");
+        taskManager.removeTaskById(1);
+        System.out.println(taskManager.getHistory());
 
-        System.out.println("Список подзадач в эпике с id=3: ");
-        System.out.println(taskManager.showSubTaskListByEpicId(3));
+        //Удалите эпик с тремя подзадачами и убедитесь, что из истории удалился как сам эпик, так и все его подзадачи
         System.out.println();
-
-        System.out.println("Список подзадач в эпике с id=5: ");
-        System.out.println(taskManager.showSubTaskListByEpicId(5));
-        System.out.println();
-
-        System.out.println("Список обычных задач: ");
-        System.out.println(taskManager.showTaskList());
-        System.out.println();
-
-        System.out.println("Список сабтасков");
-        System.out.println(taskManager.showSubTaskList());
-
+        System.out.println("Смотрим историю после удаления эпика");
+        taskManager.removeEpicById(3);
+        System.out.println(taskManager.getHistory());
     }
 }
