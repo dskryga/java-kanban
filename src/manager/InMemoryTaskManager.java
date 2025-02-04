@@ -84,11 +84,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTaskList() {
+        for (Integer id: taskList.keySet()) {
+            historyManager.remove(id);
+        }
         taskList.clear();
     }
 
     @Override
     public void clearSubTaskList() {
+        for (Integer id: subTaskList.keySet()) {
+            historyManager.remove(id);
+        }
         subTaskList.clear();
         for (Epic epic : epicList.values()) {
             epic.clearSubTaskIds();
@@ -98,6 +104,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearEpicList() {
+        for (Integer id: subTaskList.keySet()) {
+            historyManager.remove(id);
+        }
+        for (Integer id: epicList.keySet()) {
+            historyManager.remove(id);
+        }
         subTaskList.clear();
         epicList.clear();
     }
@@ -138,6 +150,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeTaskById(int id) {
         taskList.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -146,6 +159,7 @@ public class InMemoryTaskManager implements TaskManager {
             Integer epicId = subTaskList.get(id).getEpicId();
             epicList.get(epicId).removeSubTask(id);
             subTaskList.remove(id);
+            historyManager.remove(id);
             updateEpicStatus(epicId);
         }
     }
@@ -154,6 +168,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeEpicById(int id) {
         removeAllSubTasksByEpicId(id);
         epicList.remove(id);
+        historyManager.remove(id);
     }
 
     private void removeAllSubTasksByEpicId(int epicId) {
@@ -161,6 +176,7 @@ public class InMemoryTaskManager implements TaskManager {
             ArrayList<Integer> subTasksIds = epicList.get(epicId).getSubTaskIds();
             for (Integer id : subTasksIds) {
                 subTaskList.remove(id);
+                historyManager.remove(id);
             }
         }
     }

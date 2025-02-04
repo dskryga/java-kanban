@@ -147,10 +147,12 @@ class InMemoryTaskManagerTest {
         Task task2 = new Task("B", "BB", Status.NEW);
         tm.addTask(task1);
         tm.addTask(task2);
+        tm.getTaskById(task1.getId());
 
         tm.clearTaskList();
 
         Assertions.assertTrue(tm.showTaskList().isEmpty());
+        Assertions.assertTrue(tm.getHistory().isEmpty());
     }
 
     @Test
@@ -161,10 +163,12 @@ class InMemoryTaskManagerTest {
         SubTask subTask2 = new SubTask("B", "BB", Status.NEW, epic.getId());
         tm.addSubTask(subTask1);
         tm.addSubTask(subTask2);
+        tm.getSubTaskById(1);
 
         tm.clearSubTaskList();
 
         Assertions.assertTrue(tm.showSubTaskList().isEmpty());
+        Assertions.assertTrue(tm.getHistory().isEmpty());
     }
 
     @Test
@@ -173,10 +177,12 @@ class InMemoryTaskManagerTest {
         Epic epic2 = new Epic("B", "BB");
         tm.addEpic(epic1);
         tm.addEpic(epic2);
+        tm.getEpicById(1);
 
         tm.clearEpicList();
 
         Assertions.assertTrue(tm.showEpicList().isEmpty());
+        Assertions.assertTrue(tm.getHistory().isEmpty());
     }
 
     @Test
@@ -355,46 +361,42 @@ class InMemoryTaskManagerTest {
         Epic epicInHistory = (Epic) list.get(1);
         SubTask subtaskInHistory = (SubTask) list.get(2);
 
-        Assertions.assertEquals(task.getName(),taskInHistory.getName());
+        Assertions.assertEquals(task.getName(), taskInHistory.getName());
         Assertions.assertEquals(task.getDescription(), taskInHistory.getDescription());
         Assertions.assertEquals(task.getStatus(), taskInHistory.getStatus());
-        Assertions.assertEquals(epic.getName(),epicInHistory.getName());
-        Assertions.assertEquals(epic.getDescription(),epicInHistory.getDescription());
-        Assertions.assertEquals(subTask.getName(),subtaskInHistory.getName());
-        Assertions.assertEquals(subTask.getDescription(),subtaskInHistory.getDescription());
-        Assertions.assertEquals(subTask.getStatus(),subtaskInHistory.getStatus());
+        Assertions.assertEquals(epic.getName(), epicInHistory.getName());
+        Assertions.assertEquals(epic.getDescription(), epicInHistory.getDescription());
+        Assertions.assertEquals(subTask.getName(), subtaskInHistory.getName());
+        Assertions.assertEquals(subTask.getDescription(), subtaskInHistory.getDescription());
+        Assertions.assertEquals(subTask.getStatus(), subtaskInHistory.getStatus());
     }
 
     @Test
     void tasksAreEqualsIfIdsAreEquals() {
-        Task task1 = new Task("A","AA",Status.NEW);
+        Task task1 = new Task("A", "AA", Status.NEW);
         tm.addTask(task1);
         Task task2 = tm.getTaskById(task1.getId());
 
-        Assertions.assertEquals(task1,task2);
+        Assertions.assertEquals(task1, task2);
     }
 
     @Test
     void epicsAreEqualsIfIdsAreEquals() {
-        Epic epic1 = new Epic("A","AA");
+        Epic epic1 = new Epic("A", "AA");
         tm.addEpic(epic1);
         Epic epic2 = tm.getEpicById(epic1.getId());
 
-        Assertions.assertEquals(epic1,epic2);
+        Assertions.assertEquals(epic1, epic2);
     }
 
     @Test
     void subtasksAreEqualsIfIdsAreEquals() {
-        Epic epic = new Epic("A","AA");
+        Epic epic = new Epic("A", "AA");
         tm.addEpic(epic);
-        SubTask subTask1 = new SubTask("B","BB",Status.NEW,epic.getId());
+        SubTask subTask1 = new SubTask("B", "BB", Status.NEW, epic.getId());
         tm.addSubTask(subTask1);
         SubTask subTask2 = tm.getSubTaskById(subTask1.getId());
 
-        Assertions.assertEquals(subTask1,subTask2);
+        Assertions.assertEquals(subTask1, subTask2);
     }
-
-
-
-
 }
