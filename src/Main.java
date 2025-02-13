@@ -1,10 +1,7 @@
 import manager.FileBackedTaskManager;
 import manager.Managers;
-import manager.TaskManager;
 import tasks.Epic;
-import tasks.Status;
-import tasks.SubTask;
-import tasks.Task;
+
 
 import java.io.File;
 
@@ -19,10 +16,9 @@ public class Main {
         FileBackedTaskManager taskManager = Managers.loadFileBackedTaskManager(new File("data.csv"));
         System.out.println(taskManager.showTaskList());
 
-        Epic epic = new Epic("lolol","kekeke");
+        Epic epic = new Epic("abc", "123");
         taskManager.addEpic(epic);
         System.out.println(taskManager.showEpicList());
-
 
 
         // Создайте две задачи, эпик с тремя подзадачами и эпик без подзадач.
@@ -44,7 +40,6 @@ public class Main {
 //        SubTask subTaskGetToService = new SubTask("Добраться до сервиса", "Доехать на эвакуаторе до СТО",
 //                Status.NEW, epicRepairCar.getId());
 //        taskManager.addSubTask(subTaskGetToService);
-
 
 
         //Запросите созданные задачи несколько раз в разном порядке.
