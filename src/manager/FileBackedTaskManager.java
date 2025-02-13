@@ -200,7 +200,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     private Type getTypeTaskFromString(String str) throws IOException {
         String[] lines = str.split(",");
-        if (lines.length<6) throw new IOException("Ошибка считывания файла");
+        if (lines.length < 6) throw new IOException("Ошибка считывания файла");
         Type type;
         switch (lines[1]) {
             case "TASK":
@@ -221,7 +221,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     private Status getStatusTaskFromString(String str) throws IOException {
         String[] lines = str.split(",");
-        if (lines.length<6) throw new IOException("Ошибка считывания файла");
+        if (lines.length < 6) throw new IOException("Ошибка считывания файла");
         Status status;
         switch (lines[3]) {
             case "NEW":
@@ -242,7 +242,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     private Integer getTaskIdFromString(String str) throws IOException {
         String[] lines = str.split(",");
-        if (lines.length<6) throw new IOException("Ошибка считывания файла");
+        if (lines.length < 6) throw new IOException("Ошибка считывания файла");
         Integer id = Integer.valueOf(lines[0]);
         return id;
     }

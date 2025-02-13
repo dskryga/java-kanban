@@ -8,6 +8,16 @@ public class Task {
     private Status status;
     private Integer id;
 
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    private Type type;
+
     public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
