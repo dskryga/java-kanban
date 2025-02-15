@@ -11,10 +11,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
+public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private File data;
-    private static InMemoryTaskManager inMemoryTaskManager;
 
     public FileBackedTaskManager(File file) {
         super();
@@ -95,6 +94,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     private void save() {
         List<String> allItems = new ArrayList<>();
+        allItems.add("id,type,name,status,description,epic");
         for (Task task : showTaskList()) {
             String taskAsString = taskToString(task);
             allItems.add(taskAsString);
@@ -164,12 +164,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         String description = parameters[4];
         Status status = getStatusTaskFromString(str);
         Epic epic = new Epic(name, description);
+        epic.setStatus(status);
+        epic.setId(id);
         return epic;
     }
 
     public void loadFromFile(File file) {
         try {
             List<String> allLines = Files.readAllLines(file.toPath());
+            allLines.removeFirst();
             for (String line : allLines) {
                 Type type = getTypeTaskFromString(line);
                 Integer id = getTaskIdFromString(line);
@@ -179,15 +182,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 switch (type) {
                     case Type.TASK:
                         Task task = stringToTask(line);
-                        addTask(task);
+                        loadTask(task);
                         break;
                     case Type.EPIC:
                         Epic epic = stringToEpic(line);
-                        addEpic(epic);
+                        loadEpic(epic);
                         break;
                     case Type.SUBTASK:
                         SubTask subTask = stringToSubTask(line);
-                        addSubTask(subTask);
+                        loadSubTask(subTask);
                         break;
                 }
             }
@@ -213,8 +216,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 type = Type.EPIC;
                 break;
             default:
-                type = Type.TASK;
-                break;
+                throw new IOException("Ошибка считывания файла");
         }
         return type;
     }

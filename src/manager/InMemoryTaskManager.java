@@ -242,12 +242,28 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    public void setTaskCounter(Integer newId) {
+    protected void setTaskCounter(Integer newId) {
         taskCounter = newId;
     }
 
-    public int getTaskCounter() {
+    protected int getTaskCounter() {
         return taskCounter;
+    }
+
+    protected void loadTask(Task task) {
+        taskList.put(task.getId(), task);
+    }
+
+    protected void loadSubTask(SubTask subTask) {
+        if (epicList.containsKey(subTask.getEpicId())) {
+            subTaskList.put(subTask.getId(), subTask);
+            epicList.get(subTask.getEpicId()).addSubTask(subTask.getId());
+            updateEpicStatus(subTask.getEpicId());
+        }
+    }
+
+    protected void loadEpic(Epic epic) {
+        epicList.put(epic.getId(), epic);
     }
 
 
