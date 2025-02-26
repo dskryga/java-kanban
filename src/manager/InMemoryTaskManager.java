@@ -31,12 +31,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addTask(Task task) {
         task.setId(setTaskId());
+        task.setType(Type.TASK);
         taskList.put(task.getId(), task);
     }
 
     @Override
     public void addEpic(Epic epic) {
         epic.setId(setTaskId());
+        epic.setType(Type.EPIC);
         epicList.put(epic.getId(), epic);
     }
 
@@ -44,6 +46,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void addSubTask(SubTask subTask) {
         if (epicList.containsKey(subTask.getEpicId())) {
             subTask.setId(setTaskId());
+            subTask.setType(Type.SUBTASK);
             subTaskList.put(subTask.getId(), subTask);
             epicList.get(subTask.getEpicId()).addSubTask(subTask.getId());
             updateEpicStatus(subTask.getEpicId());
@@ -84,7 +87,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTaskList() {
-        for (Integer id: taskList.keySet()) {
+        for (Integer id : taskList.keySet()) {
             historyManager.remove(id);
         }
         taskList.clear();
@@ -92,7 +95,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearSubTaskList() {
-        for (Integer id: subTaskList.keySet()) {
+        for (Integer id : subTaskList.keySet()) {
             historyManager.remove(id);
         }
         subTaskList.clear();
@@ -104,10 +107,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearEpicList() {
-        for (Integer id: subTaskList.keySet()) {
+        for (Integer id : subTaskList.keySet()) {
             historyManager.remove(id);
         }
-        for (Integer id: epicList.keySet()) {
+        for (Integer id : epicList.keySet()) {
             historyManager.remove(id);
         }
         subTaskList.clear();
@@ -237,6 +240,30 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    protected void setTaskCounter(Integer newId) {
+        taskCounter = newId;
+    }
+
+    protected int getTaskCounter() {
+        return taskCounter;
+    }
+
+    protected void loadTask(Task task) {
+        taskList.put(task.getId(), task);
+    }
+
+    protected void loadSubTask(SubTask subTask) {
+        if (epicList.containsKey(subTask.getEpicId())) {
+            subTaskList.put(subTask.getId(), subTask);
+            epicList.get(subTask.getEpicId()).addSubTask(subTask.getId());
+            updateEpicStatus(subTask.getEpicId());
+        }
+    }
+
+    protected void loadEpic(Epic epic) {
+        epicList.put(epic.getId(), epic);
     }
 
 
