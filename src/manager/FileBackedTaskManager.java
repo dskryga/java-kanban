@@ -133,15 +133,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } else { //если это не сабтаск, то поле с эпикайди надо оставить пустым
             taskAsString += ", ";
         }
-        if(task.getStartTime()!=null) {
+        if (task.getStartTime() != null) {
             taskAsString += task.getStartTime() + ",";
         } else {
             taskAsString += ", ";
         }
-        if(task.getDuration()!=null) {
+        if (task.getDuration() != null) {
             taskAsString += task.getDuration();
         } else {
-            taskAsString +=",";
+            taskAsString += ",";
         }
 
         return taskAsString;
@@ -157,7 +157,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         Task task = new Task(name, description, status);
         task.setType(Type.TASK);
         task.setId(id);
-        if (!(parameters[6].isBlank()&&parameters[7].isBlank())) {
+        if (!(parameters[6].isBlank() && parameters[7].isBlank())) {
             LocalDateTime startTime = LocalDateTime.parse(parameters[6]);
             Duration duration = Duration.parse(parameters[7]);
             task.setStartTime(startTime);
@@ -176,7 +176,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         SubTask subTask = new SubTask(name, description, status, epicId);
         subTask.setType(Type.SUBTASK);
         subTask.setId(id);
-        if (!(parameters[6].isBlank()&&parameters[7].isBlank())) {
+        if (!(parameters[6].isBlank() && parameters[7].isBlank())) {
             LocalDateTime startTime = LocalDateTime.parse(parameters[6]);
             Duration duration = Duration.parse(parameters[7]);
             subTask.setStartTime(startTime);
@@ -194,7 +194,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         Epic epic = new Epic(name, description);
         epic.setStatus(status);
         epic.setId(id);
-        if (!(parameters[6].isBlank()&&parameters[7].isBlank())) {
+        if (!(parameters[6].isBlank() && parameters[7].isBlank())) {
             LocalDateTime startTime = LocalDateTime.parse(parameters[6]);
             Duration duration = Duration.parse(parameters[7]);
             epic.setStartTime(startTime);
