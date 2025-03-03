@@ -14,4 +14,5 @@ class InMemoryTaskManagerTest extends TaskManagerTest{
     TaskManager getTaskManager() {
         return new InMemoryTaskManager();
     }
+
 }

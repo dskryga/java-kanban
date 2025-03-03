@@ -32,7 +32,6 @@ abstract class TaskManagerTest<M extends TaskManager> {
         Assertions.assertEquals(description, actualTask.getDescription());
         Assertions.assertEquals(status, actualTask.getStatus());
         Assertions.assertNotNull(actualTask.getId());
-
     }
 
     @Test
@@ -149,6 +148,7 @@ abstract class TaskManagerTest<M extends TaskManager> {
 
         Assertions.assertTrue(tm.showTaskList().isEmpty());
         Assertions.assertTrue(tm.getHistory().isEmpty());
+        Assertions.assertTrue(tm.getPrioritizedTasks().isEmpty());
     }
 
     @Test
@@ -165,6 +165,7 @@ abstract class TaskManagerTest<M extends TaskManager> {
 
         Assertions.assertTrue(tm.showSubTaskList().isEmpty());
         Assertions.assertTrue(tm.getHistory().isEmpty());
+        Assertions.assertTrue(tm.getPrioritizedTasks().isEmpty());
     }
 
     @Test
@@ -248,6 +249,7 @@ abstract class TaskManagerTest<M extends TaskManager> {
         tm.removeTaskById(id);
 
         Assertions.assertNull(tm.getTaskById(id));
+        Assertions.assertTrue(tm.getPrioritizedTasks().isEmpty());
     }
 
     @Test
@@ -262,6 +264,7 @@ abstract class TaskManagerTest<M extends TaskManager> {
 
         Assertions.assertNull(tm.getSubTaskById(id));
         Assertions.assertTrue(tm.showSubTaskListByEpicId(epic.getId()).isEmpty());
+        Assertions.assertTrue(tm.getPrioritizedTasks().isEmpty());
     }
 
     @Test
@@ -269,10 +272,14 @@ abstract class TaskManagerTest<M extends TaskManager> {
         Epic epic = new Epic("A", "AA");
         tm.addEpic(epic);
         int id = epic.getId();
+        SubTask subTask = new SubTask("a", "AA", Status.NEW, id);
+        tm.addSubTask(subTask);
 
         tm.removeEpicById(id);
 
         Assertions.assertNull(tm.getEpicById(id));
+        Assertions.assertTrue(tm.showSubTaskList().isEmpty());
+        Assertions.assertTrue(tm.getPrioritizedTasks().isEmpty());
     }
 
     @Test
@@ -414,6 +421,34 @@ abstract class TaskManagerTest<M extends TaskManager> {
     }
 
     @Test
+    void updateEpicTime() {
+        Epic epic = new Epic("a", "AA");
+        tm.addEpic(epic);
+        SubTask subTask = new SubTask("b", "bb", Status.NEW, 1);
+        subTask.setStartTime(LocalDateTime.now());
+        subTask.setDuration(Duration.of(1, ChronoUnit.MINUTES));
+
+        tm.addSubTask(subTask);
+
+        Assertions.assertEquals(subTask.getStartTime(), epic.getStartTime());
+        Assertions.assertEquals(subTask.getDuration(), epic.getDuration());
+        Assertions.assertEquals(subTask.getEndTime(), epic.getEndTime());
+    }
+
+    @Test
+    void updateEpicTimeIfSubtaskTimeIsNull() {
+        Epic epic = new Epic("a", "AA");
+        tm.addEpic(epic);
+        SubTask subTask = new SubTask("b", "bb", Status.NEW, 1);
+
+        tm.addSubTask(subTask);
+
+        Assertions.assertNull(epic.getStartTime());
+        Assertions.assertNull(epic.getDuration());
+        Assertions.assertNull(epic.getEndTime());
+    }
+
+    @Test
     void addToPrioritizedTask() {
         Task secondTask = new Task("later task", "later", Status.NEW);
         Task firstTask = new Task("Earlier task", "earlier", Status.NEW);
@@ -446,16 +481,76 @@ abstract class TaskManagerTest<M extends TaskManager> {
     }
 
     @Test
-    void doNotAddCrossedInTimeTasks() {
-        Task secondTask = new Task("later task", "later", Status.NEW);
-        Task firstTask = new Task("Earlier task", "earlier", Status.NEW);
-        secondTask.setStartTime(LocalDateTime.now());
-        secondTask.setDuration(Duration.of(1, ChronoUnit.MINUTES));
-        firstTask.setStartTime(LocalDateTime.now());
-        firstTask.setDuration(Duration.of(1, ChronoUnit.MINUTES));
+    void doNotAddCrossedInTimeTasksCase1() {
 
-        tm.addTask(firstTask);
+        //Начало добавляемой задачи раньше начала существующей, конец добавляемой лежит на отрезке продолжительности
+        // существующей
 
-        Assertions.assertThrows(FileManagerCrossedTimeInTasksException.class, () -> tm.addTask(secondTask));
+        Task case1ExistedTask = new Task("a", "a", Status.NEW);
+        case1ExistedTask.setStartTime(LocalDateTime.now());
+        case1ExistedTask.setDuration(Duration.of(10, ChronoUnit.MINUTES));
+        tm.addTask(case1ExistedTask);
+        Task case1NewTask = new Task("B", "B", Status.NEW);
+        case1NewTask.setStartTime(LocalDateTime.now().minus(10, ChronoUnit.MINUTES));
+        case1NewTask.setDuration(Duration.of(15, ChronoUnit.MINUTES));
+        Assertions.assertThrows(FileManagerCrossedTimeInTasksException.class, () -> tm.addTask(case1NewTask));
+
+
+    }
+
+    @Test
+    void doNotAddCrossedInTimeTasksCase2() {
+        // Начало добавляемой задачи находится на отрезке продолжительности существующей, конец - после существующей
+        Task case2ExistedTask = new Task("a", "a", Status.NEW);
+        case2ExistedTask.setStartTime(LocalDateTime.now());
+        case2ExistedTask.setDuration(Duration.of(10, ChronoUnit.MINUTES));
+        tm.addTask(case2ExistedTask);
+        Task case2NewTask = new Task("B", "B", Status.NEW);
+        case2NewTask.setStartTime(LocalDateTime.now().plus(5, ChronoUnit.MINUTES));
+        case2NewTask.setDuration(Duration.of(15, ChronoUnit.MINUTES));
+        Assertions.assertThrows(FileManagerCrossedTimeInTasksException.class, () -> tm.addTask(case2NewTask));
+    }
+
+    @Test
+    void doNotAddCrossedInTimeTasksCase3() {
+        // Начало добавляемой задачи находится раньше начала существующей, а конец - позже конца существующей
+        Task case3ExistedTask = new Task("a", "a", Status.NEW);
+        case3ExistedTask.setStartTime(LocalDateTime.now());
+        case3ExistedTask.setDuration(Duration.of(10, ChronoUnit.MINUTES));
+        tm.addTask(case3ExistedTask);
+        Task case3NewTask = new Task("B", "B", Status.NEW);
+        case3NewTask.setStartTime(LocalDateTime.now().minus(5, ChronoUnit.MINUTES));
+        case3NewTask.setDuration(Duration.of(25, ChronoUnit.MINUTES));
+        Assertions.assertThrows(FileManagerCrossedTimeInTasksException.class, () -> tm.addTask(case3NewTask));
+    }
+
+    @Test
+    void doNotAddCrossedInTimeTasksCase4() {
+        // Начало и конец добавляемой задачи находятся на отрезке длительности существующей
+        Task case4ExistedTask = new Task("a", "a", Status.NEW);
+        case4ExistedTask.setStartTime(LocalDateTime.now());
+        case4ExistedTask.setDuration(Duration.of(25, ChronoUnit.MINUTES));
+        tm.addTask(case4ExistedTask);
+        Task case4NewTask = new Task("B", "B", Status.NEW);
+        case4NewTask.setStartTime(LocalDateTime.now().plus(5, ChronoUnit.MINUTES));
+        case4NewTask.setDuration(Duration.of(5, ChronoUnit.MINUTES));
+        Assertions.assertThrows(FileManagerCrossedTimeInTasksException.class, () -> tm.addTask(case4NewTask));
+    }
+
+    @Test
+    void doNotCheckCrossTimeOfTwoVersionsOfTaskInUpdateTask() {
+        //При обновлении задачи, ее время не должно сравниваться на пересечение с ее старой версией
+        Task task1 = new Task("a", "AA", Status.NEW);
+        task1.setStartTime(LocalDateTime.now().plus(60, ChronoUnit.MINUTES));
+        task1.setDuration(Duration.of(1, ChronoUnit.MINUTES));
+        tm.addTask(task1);
+        Task task2 = new Task("b", "bb", Status.NEW);
+        task2.setStartTime(LocalDateTime.now());
+        task2.setDuration(Duration.of(10, ChronoUnit.MINUTES));
+        tm.addTask(task2);
+        task2.setStartTime(LocalDateTime.now().minus(10, ChronoUnit.MINUTES));
+        task2.setDuration(Duration.of(15, ChronoUnit.MINUTES));
+
+        Assertions.assertDoesNotThrow(() -> tm.updateTask(task2));
     }
 }
