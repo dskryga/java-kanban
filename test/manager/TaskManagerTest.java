@@ -538,6 +538,19 @@ abstract class TaskManagerTest<M extends TaskManager> {
     }
 
     @Test
+    void addNotCrossedInTimeTasksCase1(){
+        // линии длительности задач не пересекаются, при этом существующая задача находится позже добавляемой
+        Task case1ExistedTask = new Task("a", "a", Status.NEW);
+        case1ExistedTask.setStartTime(LocalDateTime.now().plus(1,ChronoUnit.DAYS));
+        case1ExistedTask.setDuration(Duration.of(10, ChronoUnit.MINUTES));
+        tm.addTask(case1ExistedTask);
+        Task case1NewTask = new Task("B", "B", Status.NEW);
+        case1NewTask.setStartTime(LocalDateTime.now().minus(10, ChronoUnit.MINUTES));
+        case1NewTask.setDuration(Duration.of(15, ChronoUnit.MINUTES));
+        Assertions.assertDoesNotThrow(() -> tm.addTask(case1NewTask));
+    }
+
+    @Test
     void doNotCheckCrossTimeOfTwoVersionsOfTaskInUpdateTask() {
         //При обновлении задачи, ее время не должно сравниваться на пересечение с ее старой версией
         Task task1 = new Task("a", "AA", Status.NEW);

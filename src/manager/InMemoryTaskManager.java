@@ -97,38 +97,35 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTaskList() {
-        showTaskList().stream()
-                .forEach(task -> prioritizedTasks.remove(task));
-        taskList.keySet().stream()
-                .forEach(id -> historyManager.remove(id));
+        taskList.values().forEach(task -> {
+            prioritizedTasks.remove(task);
+            historyManager.remove(task.getId());
+        });
         taskList.clear();
     }
 
     @Override
     public void clearSubTaskList() {
-        showSubTaskList().stream()
-                .forEach(subTask -> prioritizedTasks.remove(subTask));
-        subTaskList.keySet().stream()
-                .forEach(id -> historyManager.remove(id));
+        subTaskList.values().forEach(subTask -> {
+            prioritizedTasks.remove(subTask);
+            historyManager.remove(subTask.getId());
+        });
         subTaskList.clear();
-        epicList.values().stream()
-                .forEach(epic -> epic.clearSubTaskIds());
-        epicList.keySet().stream()
-                .forEach(id -> {
-                    updateEpicStatus(id);
-                    updateEpicTime(id);
-                });
+        epicList.values().forEach(epic -> {
+            epic.clearSubTaskIds();
+            updateEpicStatus(epic.getId());
+            updateEpicTime(epic.getId());
+        });
     }
 
     @Override
     public void clearEpicList() {
-        subTaskList.keySet().stream()
-                .forEach(id -> historyManager.remove(id));
-        subTaskList.values().stream()
-                .forEach(subTask -> prioritizedTasks.remove(subTask));
+        subTaskList.values().forEach(subTask -> {
+            historyManager.remove(subTask.getId());
+            prioritizedTasks.remove(subTask);
+        });
         subTaskList.clear();
-        epicList.keySet().stream()
-                .forEach(id -> historyManager.remove(id));
+        epicList.keySet().forEach(id -> historyManager.remove(id));
         epicList.clear();
     }
 
@@ -242,9 +239,8 @@ public class InMemoryTaskManager implements TaskManager {
                 subTaskList.replace(subTask.getId(), subTask);
                 addToPrioritizedTask(subTask);
                 updateEpicStatus(subTask.getEpicId());
-                if (subTask.getStartTime() != null) {
-                    updateEpicTime(subTask.getEpicId());
-                }
+                updateEpicTime(subTask.getEpicId());
+
             }
         }
     }
@@ -356,7 +352,22 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean isCrossed(Task task1, Task task2) {
-        return task1.getEndTime().isAfter(task2.getStartTime());
+        return (
+                (task1.getEndTime().isAfter(task2.getStartTime())) &&
+                        (task1.getEndTime().isBefore(task2.getEndTime()))
+        )
+                ||
+                (
+                        (task1.getStartTime().isAfter(task2.getStartTime())) &&
+                                (task1.getStartTime().isBefore(task2.getEndTime()))
+                )
+                ||
+                (
+                        (task2.getStartTime().isAfter(task1.getStartTime())) &&
+                                (task2.getEndTime().isBefore(task1.getEndTime()))
+                        )
+
+                ;
     }
 
     private void checkForCrossTime(Task taskToAdd) {
