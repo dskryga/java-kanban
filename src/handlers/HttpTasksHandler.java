@@ -1,19 +1,19 @@
-package httpHandlers;
+package handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import exception.FileManagerCrossedTimeInTasksException;
 import manager.TaskManager;
-import tasks.SubTask;
+import tasks.Task;
 
 import java.io.IOException;
 import java.util.List;
 
-public class HttpSubTasksHandler extends BaseHttpHandler implements HttpHandler {
+public class HttpTasksHandler extends BaseHttpHandler implements HttpHandler {
 
     private TaskManager tm;
 
-    public HttpSubTasksHandler(TaskManager tm) {
+    public HttpTasksHandler(TaskManager tm) {
         this.tm = tm;
     }
 
@@ -23,88 +23,90 @@ public class HttpSubTasksHandler extends BaseHttpHandler implements HttpHandler 
 
         switch (httpMethod) {
             case "GET":
-                getSubTasks(exchange);
+                getTasks(exchange);
                 break;
             case "POST":
-                postSubTasks(exchange);
+                postTasks(exchange);
                 break;
 
             case "DELETE":
-                deleteSubTasks(exchange);
+                deleteTasks(exchange);
                 break;
             default:
                 sendNotFound(exchange, 405);
                 break;
         }
+
     }
 
-    private void getSubTasks(HttpExchange exchange) throws IOException {
+    private void getTasks(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
         String[] urlParts = path.split("/");
 
         if (urlParts.length == 3) {
             try {
                 Integer id = Integer.valueOf(urlParts[2]);
-                SubTask subTask = tm.getSubTaskById(id);
-                if (subTask == null) {
+                Task task = tm.getTaskById(id);
+                if (task == null) {
                     sendNotFound(exchange, 404);
                 } else {
-                    String jsonSubTask = jsonMapper.toJson(subTask);
-                    sendText(exchange, jsonSubTask, 200);
+                    String jsonTask = jsonMapper.toJson(task);
+                    sendText(exchange, jsonTask, 200);
                 }
             } catch (NumberFormatException e) {
-                sendText(exchange, "Неподдерживаемый формат id подзадачи", 400);
+                sendText(exchange, "Неподдерживаемый формат id задачи", 400);
                 return;
             }
         }
 
         if (urlParts.length == 2) {
             //получение всех задач
-            List<SubTask> allSubTasks = tm.showSubTaskList();
-            String jsonAllSubTasks = jsonMapper.toJson(allSubTasks);
-            sendText(exchange, jsonAllSubTasks, 200);
+            List<Task> allTasks = tm.showTaskList();
+            String jsonAllTasks = jsonMapper.toJson(allTasks);
+            sendText(exchange, jsonAllTasks, 200);
         } else {
             sendText(exchange, "Неподдерживаемый формат URL запроса", 400);
         }
+
+
     }
 
-    private void deleteSubTasks(HttpExchange exchange) throws IOException {
+    private void deleteTasks(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
         String[] urlParts = path.split("/");
 
         if (urlParts.length == 3) {
             try {
                 Integer id = Integer.valueOf(urlParts[2]);
-                tm.removeSubTaskById(id);
-                sendText(exchange, String.format("Подзадача с id %d удалена или не существует", id), 200);
+                tm.removeTaskById(id);
+                sendText(exchange, String.format("Задача с id %d удалена или не существует", id), 200);
             } catch (NumberFormatException e) {
-                sendText(exchange, "Неподдерживаемый формат id подзадачи", 400);
+                sendText(exchange, "Неподдерживаемый формат id задачи", 400);
                 return;
             }
         }
 
         if (urlParts.length == 2) {
-            tm.clearSubTaskList();
-            sendText(exchange, "Весь список подзадач очищен", 200);
+            tm.clearTaskList();
+            sendText(exchange, "Весь список задач очищен", 200);
         } else {
             sendText(exchange, "Неподдерживаемый формат URL запроса", 400);
         }
     }
 
-    private void postSubTasks(HttpExchange exchange) throws IOException {
-        String jsonSubTask = new String(exchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
-        SubTask subTask = jsonMapper.fromJson(jsonSubTask, SubTask.class);
-        if (subTask.getId() == null) {
+    private void postTasks(HttpExchange exchange) throws IOException {
+        String jsonTask = new String(exchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
+        Task task = jsonMapper.fromJson(jsonTask, Task.class);
+        if (task.getId() == null) {
             try {
-                tm.addSubTask(subTask);
-                sendText(exchange, "Подзадача успешно добавлена", 201);
+                tm.addTask(task);
+                sendText(exchange, "Задача успешно добавлена", 201);
             } catch (FileManagerCrossedTimeInTasksException e) {
                 sendText(exchange, e.getMessage(), 406);
             }
         } else {
-            tm.updateSubTask(subTask);
-            sendText(exchange, "Подзадача успешно обновлена", 201);
+            tm.updateTask(task);
+            sendText(exchange, "Задача успешно обновлена", 201);
         }
     }
-
 }

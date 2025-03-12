@@ -1,4 +1,4 @@
-package httpHandlers;
+package handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
