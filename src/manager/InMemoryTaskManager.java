@@ -371,7 +371,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void checkForCrossTime(Task taskToAdd) {
-        if (taskToAdd.getStartTime() != null && taskToAdd.getDuration()!=null) {
+        if (taskToAdd.getStartTime() != null && taskToAdd.getDuration() != null) {
             getPrioritizedTasks().stream()
                     .filter(task -> isCrossed(taskToAdd, task))
                     .findAny()
