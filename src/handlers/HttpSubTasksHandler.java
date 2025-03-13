@@ -96,8 +96,9 @@ public class HttpSubTasksHandler extends BaseHttpHandler implements HttpHandler 
         SubTask subTask = jsonMapper.fromJson(jsonSubTask, SubTask.class);
         if (subTask.getId() == null) {
             try {
-                tm.addSubTask(subTask);
-                sendText(exchange, "Подзадача успешно добавлена", 201);
+                SubTask createdSubtask = tm.addSubTask(subTask);
+                Integer id = createdSubtask.getId();
+                sendText(exchange, String.format("Подзадача с id %d успешно добавлена", id), 201);
             } catch (FileManagerCrossedTimeInTasksException e) {
                 sendText(exchange, e.getMessage(), 406);
             }

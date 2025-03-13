@@ -99,8 +99,9 @@ public class HttpTasksHandler extends BaseHttpHandler implements HttpHandler {
         Task task = jsonMapper.fromJson(jsonTask, Task.class);
         if (task.getId() == null) {
             try {
-                tm.addTask(task);
-                sendText(exchange, "Задача успешно добавлена", 201);
+                Task createdTask = tm.addTask(task);
+                Integer id = createdTask.getId();
+                sendText(exchange, String.format("Задача с id %d успешно добавлена", id), 201);
             } catch (FileManagerCrossedTimeInTasksException e) {
                 sendText(exchange, e.getMessage(), 406);
             }

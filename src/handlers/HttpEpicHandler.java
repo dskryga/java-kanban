@@ -114,8 +114,9 @@ public class HttpEpicHandler extends BaseHttpHandler implements HttpHandler {
         Epic epic = jsonMapper.fromJson(jsonEpic, Epic.class);
         if (epic.getId() == null) {
             try {
-                tm.addEpic(epic);
-                sendText(exchange, "Эпик успешно добавлена", 201);
+                Epic createdEpic = tm.addEpic(epic);
+                Integer id = createdEpic.getId();
+                sendText(exchange, String.format("Эпик с id %d успешно добавлен", id), 201);
             } catch (FileManagerCrossedTimeInTasksException e) {
                 sendText(exchange, e.getMessage(), 406);
             }
