@@ -7,11 +7,11 @@ import tasks.Task;
 import java.util.List;
 
 public interface TaskManager {
-    void addTask(Task task);
+    Task addTask(Task task);
 
-    void addEpic(Epic epic);
+    Epic addEpic(Epic epic);
 
-    void addSubTask(SubTask subTask);
+    SubTask addSubTask(SubTask subTask);
 
     List<Task> showTaskList();
 

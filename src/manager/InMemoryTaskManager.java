@@ -31,23 +31,25 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void addTask(Task taskToAdd) {
+    public Task addTask(Task taskToAdd) {
         checkForCrossTime(taskToAdd);
         taskToAdd.setId(setTaskId());
         taskToAdd.setType(Type.TASK);
         taskList.put(taskToAdd.getId(), taskToAdd);
         addToPrioritizedTask(taskToAdd);
+        return taskToAdd;
     }
 
     @Override
-    public void addEpic(Epic epicToAdd) {
+    public Epic addEpic(Epic epicToAdd) {
         epicToAdd.setId(setTaskId());
         epicToAdd.setType(Type.EPIC);
         epicList.put(epicToAdd.getId(), epicToAdd);
+        return epicToAdd;
     }
 
     @Override
-    public void addSubTask(SubTask subTaskToAdd) {
+    public SubTask addSubTask(SubTask subTaskToAdd) {
         int epicId = subTaskToAdd.getEpicId();
         if (epicList.containsKey(epicId)) {
             checkForCrossTime(subTaskToAdd);
@@ -59,6 +61,7 @@ public class InMemoryTaskManager implements TaskManager {
             updateEpicTime(epicId);
             addToPrioritizedTask(subTaskToAdd);
         }
+        return subTaskToAdd;
     }
 
     @Override
@@ -365,13 +368,13 @@ public class InMemoryTaskManager implements TaskManager {
                 (
                         (task2.getStartTime().isAfter(task1.getStartTime())) &&
                                 (task2.getEndTime().isBefore(task1.getEndTime()))
-                        )
+                )
 
                 ;
     }
 
     private void checkForCrossTime(Task taskToAdd) {
-        if (taskToAdd.getStartTime() != null) {
+        if (taskToAdd.getStartTime() != null && taskToAdd.getDuration() != null) {
             getPrioritizedTasks().stream()
                     .filter(task -> isCrossed(taskToAdd, task))
                     .findAny()
